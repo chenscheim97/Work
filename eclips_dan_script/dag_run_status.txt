@@ -1,0 +1,10 @@
+oportun financial corporation : <Response [200]>
+TMX Finance Group of Companies : <Response [200]>
+World Acceptance Corporation : <Response [200]>
+Curo Group Holdings Corp. : <Response [200]>
+Cash Express, LLC : <Response [200]>
+1st Franklin Financial Corporation : <Response [200]>
+LendingTree Corporation : <Response [200]>
+Lending Club Corporation : <Response [200]>
+OnDeck Capital, Inc. : <Response [200]>
+Upstart Network, Inc. : <Response [200]>

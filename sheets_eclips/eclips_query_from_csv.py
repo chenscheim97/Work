@@ -1,12 +1,24 @@
-"""
-this script purpose is to convert table lines into eclips syntax
-Date - 9/2/2022
-Writer - Chen Scheim
+##########################################
+# this script purpose is to convert table lines into eclips syntax
+# Date - 15/2/2022
+# Writer - Chen Scheim
+# To - Dana Gindes the queen
+
+############## INSTRUCTIONS  #############
+# 1. start VPN
+# 2. change SHEET_NAME to the required sheet in spreadsheet
+# 3. make sure those files are in folder
+#    - client_secret_800484712991-uiqs4l3dm4ti9u873h3eu1ap53ah7dnl.apps.googleusercontent.com.json
+#    - token.pickle
+# 4. make sure the required spreadsheet url is fixed in SPREADSHEET variable
+# 5. run
+
+################# REFS ###################
+# https://console.developers.google.com/apis/api/sheets.googleapis.com/metrics?project=mindful-faculty-340810
+##########################################
 
 
-https://console.developers.google.com/apis/api/sheets.googleapis.com/metrics?project=mindful-faculty-340810
-"""
-
+# IMPORTS
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -15,16 +27,16 @@ import os
 import cli
 
 
+# CONSTANTS
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 SYNTAX = r'eclipse -d "{}" -n "{}" --bvd_id "{}"'
-
-# here enter the id of your google sheet
-URL = 'https://docs.google.com/spreadsheets/d/1RsXZ5V7vMlouL6Yr5zM7wRPIMk2mV_Ql94B9q56C648/edit?usp=sharing'
+SPREADSHEET = 'https://docs.google.com/spreadsheets/d/1RsXZ5V7vMlouL6Yr5zM7wRPIMk2mV_Ql94B9q56C648/edit?usp=sharing'
 SHEET_NAME = 'oprtun'
-SAMPLE_SPREADSHEET_ID_input = URL.split('/')[5]
+SAMPLE_SPREADSHEET_ID_input = SPREADSHEET.split('/')[5]
 SAMPLE_RANGE_NAME = '{}!A1:AA1000'.format(SHEET_NAME)
 
 
+# FUNCTIONS
 def get_sheet():
     """
     this script collects data from the spread sheet
@@ -58,11 +70,11 @@ def get_sheet():
 def get_data(sheet):
     """
     this script gathers the data from the spreadsheet
-    :param sheet:
-    :return:
+    :param sheet: the spreadsheet
+    :return: matrix
     """
     result_input = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID_input,
-                                range=SAMPLE_RANGE_NAME).execute()
+                                      range=SAMPLE_RANGE_NAME).execute()
     return result_input["values"]
 
 
@@ -72,6 +84,7 @@ def write_data(sheet, vals):
     range='{}!H1:AA1000'.format(SHEET_NAME)
     writing only to row H1
     :param vals: list of one size lists
+    :param sheet: the spreadsheet var
     :return: None
     """
     values = vals
@@ -79,19 +92,19 @@ def write_data(sheet, vals):
         'values': values
     }
     sheet.values().update(
-        spreadsheetId=SAMPLE_SPREADSHEET_ID_input,
-        range='{}!H2:AA1000'.format(SHEET_NAME),  #  H is the col of the run_id
-        valueInputOption='RAW',
-        body=body).execute()
+                        spreadsheetId=SAMPLE_SPREADSHEET_ID_input,
+                        range='{}!H2:AA1000'.format(SHEET_NAME),  # H is the col of the run_id
+                        valueInputOption='RAW',
+                        body=body).execute()
 
 
 def run_eclips_from_cmd(commands):
     """
     this func runs a list of commands in cmd eclips shell
     :param commands: list of strings which are eclips commands
-    :return: None
+    :return: dag id (string)
     """
-    cli.eclipse(commands[0], commands[1], commands[2])
+    return cli.eclipse(commands[0], commands[1], commands[2])
 
 
 def string_wrapper(st):
@@ -106,16 +119,11 @@ def string_wrapper(st):
 
 
 def main():
-    """
-    data = [['oportun financial corporation', 'oportun.com', 'US453361983', '61cc5ae2b801c02a570a324a',
-    '522291', 'US', '3,149', '61cc5ae2b801c02a570a324a', '', 'x']]
-    :return:
-    """
     sheet = get_sheet()
     data = get_data(sheet)[1:]
     dags = []
     for row in data:
-        print(SYNTAX.format(string_wrapper(row[1]), string_wrapper(row[0]), string_wrapper(row[2])))
+        # print(SYNTAX.format(string_wrapper(row[1]), string_wrapper(row[0]), string_wrapper(row[2])))
         dag_id = run_eclips_from_cmd([string_wrapper(row[1]), string_wrapper(row[0]), string_wrapper(row[2])])
         dags.append([dag_id])
     write_data(sheet, dags)
